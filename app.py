@@ -1,4 +1,3 @@
-Fix it:
 import io
 from pathlib import Path
 
@@ -252,36 +251,17 @@ if page == "Detector":
             <div class="float-emoji emoji4">🍐</div>
             <div class="float-emoji emoji5">🥝</div>
         </div>
-# -----------------------------
-# DETECTOR PAGE
-# -----------------------------
-if page == "Detector":
-    st.markdown(
-        """
-        <div class="hero-box">
-            <div class="floating-wrap">
-                <div class="float-emoji emoji1">🍎</div>
-                <div class="float-emoji emoji2">🍊</div>
-                <div class="float-emoji emoji3">🍓</div>
-                <div class="float-emoji emoji4">🍐</div>
-                <div class="float-emoji emoji5">🥝</div>
-            </div>
 
-            <div style="font-size:1rem; font-weight:700; color:#a21caf;">
-                ✨ Group 5 Fruit Detector
-            </div>
-
-            <div class="main-title">Fun Fruit Vision</div>
-
-            <div style="font-size:1.08rem; color:#475569; max-width:860px;">
-                Upload an image and let our playful AI detect fruits inside it.
-                The app shows what fruits were found, how sure the model is, and a friendly summary.
-            </div>
+        <div style="font-size:1rem; font-weight:700; color:#a21caf;">✨ Group 5 Fruit Detector</div>
+        <div class="main-title">Fun Fruit Vision</div>
+        <div style="font-size:1.08rem; color:#475569; max-width:860px;">
+            Upload an image and let our playful AI detect fruits inside it.
+            The app shows what fruits were found, how sure the model is, and a friendly summary.
         </div>
-        """,
-        unsafe_allow_html=True
-    )
-col_a, col_b = st.columns([2, 1])
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_a, col_b = st.columns([2, 1])
 
     with col_a:
         st.markdown("""
