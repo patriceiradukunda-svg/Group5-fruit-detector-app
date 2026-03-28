@@ -26,21 +26,138 @@ st.set_page_config(
 # -----------------------------
 st.markdown("""
 <style>
-.stApp {
-    background: radial-gradient(circle at top, #fff6cf 0%, #ffe3f0 18%, #f1e5ff 38%, #dbf3ff 62%, #e6ffe9 100%);
-}
-.main-title {
-    font-size: 3rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, #c026d3, #f97316, #65a30d);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.soft-card {
-    background: rgba(255,255,255,0.9);
-    border-radius: 20px;
-    padding: 20px;
-}
+    .stApp {
+        background: radial-gradient(circle at top, #fff6cf 0%, #ffe3f0 18%, #f1e5ff 38%, #dbf3ff 62%, #e6ffe9 100%);
+    }
+
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #fff7ed 0%, #fdf2f8 45%, #ecfeff 100%);
+        border-right: 1px solid rgba(255,255,255,0.85);
+    }
+
+    .main-title {
+        font-size: 3.2rem;
+        font-weight: 800;
+        line-height: 1.05;
+        margin-bottom: 0.3rem;
+        background: linear-gradient(90deg, #c026d3, #f97316, #65a30d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-box {
+        position: relative;
+        overflow: hidden;
+        background: rgba(255,255,255,0.78);
+        border: 1px solid rgba(255,255,255,0.9);
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: 0 14px 34px rgba(0,0,0,0.08);
+        margin-bottom: 1rem;
+    }
+
+    .soft-card {
+        background: rgba(255,255,255,0.84);
+        border-radius: 24px;
+        padding: 20px;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.06);
+        border: 1px solid rgba(255,255,255,0.85);
+    }
+
+    .metric-card {
+        background: rgba(255,255,255,0.88);
+        border-radius: 20px;
+        padding: 16px;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+
+    .small-label {
+        font-size: 0.95rem;
+        color: #64748b;
+        margin-bottom: 0.15rem;
+    }
+
+    .big-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #f97316;
+    }
+
+    .pill {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        color: white;
+        font-weight: 700;
+        margin: 4px 6px 4px 0;
+        font-size: 0.95rem;
+    }
+
+    .apple { background: linear-gradient(90deg, #fb7185, #ef4444); }
+    .kiwi { background: linear-gradient(90deg, #84cc16, #16a34a); }
+    .orange { background: linear-gradient(90deg, #fdba74, #f97316); }
+    .pear { background: linear-gradient(90deg, #6ee7b7, #a3e635); }
+    .strawberry { background: linear-gradient(90deg, #f472b6, #f43f5e); }
+    .tomato { background: linear-gradient(90deg, #f87171, #fb923c); }
+
+    .info-box {
+        background: linear-gradient(135deg, #fff7ed, #fdf2f8, #ecfeff);
+        border-radius: 22px;
+        padding: 16px;
+        color: #334155;
+        border: 1px solid #ffffff;
+    }
+
+    .sidebar-box {
+        background: rgba(255,255,255,0.75);
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.9);
+        margin-bottom: 12px;
+    }
+
+    .team-card {
+        background: rgba(255,255,255,0.85);
+        border-radius: 20px;
+        padding: 18px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        min-height: 150px;
+    }
+
+    .floating-wrap {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .float-emoji {
+        position: absolute;
+        font-size: 2rem;
+        opacity: 0.75;
+        animation: floaty 7s ease-in-out infinite;
+    }
+
+    .emoji1 { top: 12%; left: 6%; animation-delay: 0s; }
+    .emoji2 { top: 18%; right: 10%; animation-delay: 1s; }
+    .emoji3 { bottom: 14%; left: 18%; animation-delay: 2s; }
+    .emoji4 { bottom: 18%; right: 20%; animation-delay: 3s; }
+    .emoji5 { top: 50%; right: 42%; animation-delay: 4s; }
+
+    @keyframes floaty {
+        0%   { transform: translateY(0px) translateX(0px) rotate(0deg); }
+        50%  { transform: translateY(-14px) translateX(8px) rotate(6deg); }
+        100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+    }
+
+    .footer-note {
+        text-align: center;
+        color: #64748b;
+        font-size: 0.95rem;
+        padding-top: 10px;
+        padding-bottom: 30px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -58,6 +175,9 @@ model = get_model()
 # -----------------------------
 # HELPERS
 # -----------------------------
+SUPPORTED_CLASSES = ["apple", "kiwi", "orange", "pear", "strawberry", "tomato"]
+
+
 def pil_image_to_bytes(image: Image.Image):
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
@@ -67,69 +187,208 @@ def pil_image_to_bytes(image: Image.Image):
 # SIDEBAR
 # -----------------------------
 with st.sidebar:
-    page = st.radio("Navigate", ["Detector", "About", "Team"])
+    st.markdown("""
+    <div class="sidebar-box">
+        <h2 style="margin:0; color:#a21caf;">🍓 Group 5</h2>
+        <div style="color:#475569; margin-top:4px;">Fun Fruit Vision</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    page = st.radio(
+        "Navigate",
+        ["Detector", "About", "Team"],
+        index=0
+    )
+
+    st.markdown("""
+    <div class="sidebar-box">
+        <b>Supported fruits</b><br>
+        apple, kiwi, orange, pear, strawberry, tomato
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="sidebar-box">
+        <b>Tip</b><br>
+        Upload a clear fruit image for better detection.
+    </div>
+    """, unsafe_allow_html=True)
 
 # -----------------------------
 # DETECTOR PAGE
 # -----------------------------
 if page == "Detector":
     st.markdown("""
-    <div class="soft-card">
-        <div style="font-size:1rem; font-weight:700;">✨ Group 5 Fruit Detector</div>
+    <div class="hero-box">
+        <div class="floating-wrap">
+            <div class="float-emoji emoji1">🍎</div>
+            <div class="float-emoji emoji2">🍊</div>
+            <div class="float-emoji emoji3">🍓</div>
+            <div class="float-emoji emoji4">🍐</div>
+            <div class="float-emoji emoji5">🥝</div>
+        </div>
+
+        <div style="font-size:1rem; font-weight:700; color:#a21caf;">✨ Group 5 Fruit Detector</div>
         <div class="main-title">Fun Fruit Vision</div>
-        <p>Upload an image and detect fruits using AI.</p>
+        <div style="font-size:1.08rem; color:#475569; max-width:860px;">
+            Upload an image and let our playful AI detect fruits inside it.
+            The app shows what fruits were found, how sure the model is, and a friendly summary.
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
+    col_a, col_b = st.columns([2, 1])
 
-    with col1:
-        uploaded_file = st.file_uploader("Upload Image", type=["jpg", "png", "jpeg"])
-        conf = st.slider("Confidence", 0.1, 0.9, 0.25)
-        detect = st.button("Detect")
+    with col_a:
+        st.markdown("""
+        <div class="soft-card">
+            <h3 style="margin-top:0; color:#0f172a;">🍓 Supported Classes</h3>
+            <div style="color:#475569; margin-bottom:10px;">
+                This platform is trained to detect only the following classes:
+            </div>
+            <span class="pill apple">apple</span>
+            <span class="pill kiwi">kiwi</span>
+            <span class="pill orange">orange</span>
+            <span class="pill pear">pear</span>
+            <span class="pill strawberry">strawberry</span>
+            <span class="pill tomato">tomato</span>
+        </div>
+        """, unsafe_allow_html=True)
 
-    with col2:
-        if uploaded_file:
-            img = Image.open(uploaded_file).convert("RGB")
-            st.image(img, use_container_width=True)
+    with col_b:
+        m1, m2 = st.columns(2)
+        with m1:
+            st.markdown("""
+            <div class="metric-card">
+                <div class="small-label">Fruit classes</div>
+                <div class="big-number">6</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with m2:
+            st.markdown("""
+            <div class="metric-card">
+                <div class="small-label">Powered by</div>
+                <div class="big-number" style="color:#c026d3;">YOLO</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    if uploaded_file and detect:
+    left_col, right_col = st.columns([1, 1])
+
+    with left_col:
+        st.markdown('<div class="soft-card">', unsafe_allow_html=True)
+        st.subheader("📤 Upload a fruit image")
+
+        uploaded_file = st.file_uploader(
+            "Choose an image",
+            type=["jpg", "jpeg", "png"]
+        )
+
+        conf_threshold = st.slider(
+            "Confidence threshold",
+            min_value=0.10,
+            max_value=0.90,
+            value=0.25,
+            step=0.05
+        )
+
+        detect_clicked = st.button("🔍 Detect Fruits", use_container_width=True)
+
+        st.markdown("""
+        <div class="info-box" style="margin-top:14px;">
+            <b>Friendly Note:</b> This platform is trained only for apple, kiwi, orange, pear,
+            strawberry, and tomato. If a different object appears in the image, it may not be detected.
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with right_col:
+        st.markdown('<div class="soft-card">', unsafe_allow_html=True)
+        st.subheader("🖼️ Preview")
+
+        if uploaded_file is not None:
+            preview_image = Image.open(uploaded_file).convert("RGB")
+            st.image(preview_image, use_container_width=True)
+        else:
+            st.info("Upload an image to preview it here.")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    if uploaded_file is not None and detect_clicked:
         image = Image.open(uploaded_file).convert("RGB")
 
-        with st.spinner("Detecting..."):
-            annotated, detections = predict_and_annotate(
+        with st.spinner("Detecting fruits..."):
+            annotated_image, detections = predict_and_annotate(
                 model=model,
                 image=image,
-                conf_threshold=conf
+                conf_threshold=conf_threshold
             )
 
-        st.image(annotated, use_container_width=True)
-
         summary = build_summary_text(detections)
-        st.success(summary)
+        table_data = format_detection_table(detections)
 
-        table = format_detection_table(detections)
-        if len(table) > 0:
-            st.dataframe(table, use_container_width=True)
+        result_col1, result_col2 = st.columns([1.1, 0.9])
 
-        img_bytes = pil_image_to_bytes(annotated)
-        st.download_button(
-            "Download Image",
-            img_bytes,
-            file_name="detected.png",
-            mime="image/png"
-        )
+        with result_col1:
+            st.markdown('<div class="soft-card">', unsafe_allow_html=True)
+            st.subheader("✅ Detection Result")
+            st.image(annotated_image, use_container_width=True)
+
+            image_bytes = pil_image_to_bytes(annotated_image)
+            st.download_button(
+                label="⬇️ Download detected image",
+                data=image_bytes,
+                file_name="group5_detected_fruits.png",
+                mime="image/png",
+                use_container_width=True
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        with result_col2:
+            st.markdown('<div class="soft-card">', unsafe_allow_html=True)
+            st.subheader("📋 Detection Summary")
+            st.success(summary)
+
+            if len(table_data) > 0:
+                st.subheader("🍎 Detected Fruits Details")
+                st.dataframe(
+                    table_data,
+                    use_container_width=True,
+                    hide_index=True
+                )
+            else:
+                st.warning("No supported fruits were detected in this image.")
+            st.markdown('</div>', unsafe_allow_html=True)
 
 # -----------------------------
 # ABOUT PAGE
 # -----------------------------
 elif page == "About":
-    st.title("About")
-    st.write("This app detects fruits using a YOLO model.")
+    st.markdown("""
+    <div class="hero-box">
+        <div class="main-title">About Fun Fruit Vision</div>
+        <div style="font-size:1.08rem; color:#475569; max-width:860px;">
+            Fun Fruit Vision is a bright and friendly fruit detection platform designed by Group 5.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # -----------------------------
 # TEAM PAGE
 # -----------------------------
 elif page == "Team":
-    st.title("Team")
-    st.write("Group 5 Project")
+    st.markdown("""
+    <div class="hero-box">
+        <div class="main-title">Meet Group 5</div>
+        <div style="font-size:1.08rem; color:#475569; max-width:860px;">
+            This section presents the team behind the fruit detection platform.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# -----------------------------
+# FOOTER
+# -----------------------------
+st.markdown("""
+<div class="footer-note">
+    Made by Group 5 💜🍊🍏
+</div>
+""", unsafe_allow_html=True)
