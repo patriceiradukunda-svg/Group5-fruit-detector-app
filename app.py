@@ -1,3 +1,4 @@
+Fix it:
 import io
 from pathlib import Path
 
@@ -158,6 +159,31 @@ st.markdown("""
         padding-top: 10px;
         padding-bottom: 30px;
     }
+
+    @media (max-width: 768px) {
+        .main-title {
+            font-size: 2.2rem;
+        }
+
+        .hero-box {
+            padding: 18px;
+            border-radius: 22px;
+        }
+
+        .soft-card, .metric-card, .team-card {
+            border-radius: 18px;
+            padding: 14px;
+        }
+
+        .pill {
+            font-size: 0.85rem;
+            padding: 7px 12px;
+        }
+
+        .float-emoji {
+            font-size: 1.6rem;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -176,7 +202,6 @@ model = get_model()
 # HELPERS
 # -----------------------------
 SUPPORTED_CLASSES = ["apple", "kiwi", "orange", "pear", "strawberry", "tomato"]
-
 
 def pil_image_to_bytes(image: Image.Image):
     buffer = io.BytesIO()
@@ -227,16 +252,17 @@ if page == "Detector":
             <div class="float-emoji emoji4">🍐</div>
             <div class="float-emoji emoji5">🥝</div>
         </div>
-
-        <div style="font-size:1rem; font-weight:700; color:#a21caf;">✨ Group 5 Fruit Detector</div>
-        <div class="main-title">Fun Fruit Vision</div>
-        <div style="font-size:1.08rem; color:#475569; max-width:860px;">
-            Upload an image and let our playful AI detect fruits inside it.
-            The app shows what fruits were found, how sure the model is, and a friendly summary.
-        </div>
+```python
+st.markdown("""
+<div class="hero-box">
+    <div style="font-size:1rem; font-weight:700; color:#a21caf;">✨ Group 5 Fruit Detector</div>
+    <div class="main-title">Fun Fruit Vision</div>
+    <div style="font-size:1.08rem; color:#475569; max-width:860px;">
+        Upload an image and let our playful AI detect fruits inside it.
+        The app shows what fruits were found, how sure the model is, and a friendly summary.
     </div>
-    """, unsafe_allow_html=True)
-
+</div>
+""", unsafe_allow_html=True)
     col_a, col_b = st.columns([2, 1])
 
     with col_a:
@@ -271,6 +297,8 @@ if page == "Detector":
                 <div class="big-number" style="color:#c026d3;">YOLO</div>
             </div>
             """, unsafe_allow_html=True)
+
+    st.markdown("")
 
     left_col, right_col = st.columns([1, 1])
 
@@ -311,6 +339,8 @@ if page == "Detector":
         else:
             st.info("Upload an image to preview it here.")
         st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown("")
 
     if uploaded_file is not None and detect_clicked:
         image = Image.open(uploaded_file).convert("RGB")
@@ -358,6 +388,25 @@ if page == "Detector":
                 st.warning("No supported fruits were detected in this image.")
             st.markdown('</div>', unsafe_allow_html=True)
 
+    examples_dir = Path("assets/examples")
+    if examples_dir.exists():
+        example_files = (
+            list(examples_dir.glob("*.jpg")) +
+            list(examples_dir.glob("*.png")) +
+            list(examples_dir.glob("*.jpeg"))
+        )
+        if example_files:
+            st.markdown("")
+            st.markdown('<div class="soft-card">', unsafe_allow_html=True)
+            st.subheader("🌈 Example Images")
+            st.caption("Place sample fruit images inside assets/examples/")
+
+            ex_cols = st.columns(min(len(example_files), 4))
+            for i, img_path in enumerate(example_files[:4]):
+                with ex_cols[i]:
+                    st.image(str(img_path), caption=img_path.name, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
 # -----------------------------
 # ABOUT PAGE
 # -----------------------------
@@ -367,7 +416,36 @@ elif page == "About":
         <div class="main-title">About Fun Fruit Vision</div>
         <div style="font-size:1.08rem; color:#475569; max-width:860px;">
             Fun Fruit Vision is a bright and friendly fruit detection platform designed by Group 5.
+            It allows users to upload an image and receive fruit detection results with bounding boxes,
+            confidence scores, and an easy summary.
         </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="soft-card">
+        <h3 style="margin-top:0;">🎯 What this platform does</h3>
+        <ul>
+            <li>Accepts uploaded fruit images</li>
+            <li>Detects fruits using a trained YOLO model</li>
+            <li>Shows labeled bounding boxes</li>
+            <li>Provides confidence scores and a simple summary</li>
+            <li>Supports computer, tablet, and mobile users</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("")
+    st.markdown("""
+    <div class="soft-card">
+        <h3 style="margin-top:0;">🍇 Supported classes</h3>
+        <p>This app is trained only on these classes:</p>
+        <span class="pill apple">apple</span>
+        <span class="pill kiwi">kiwi</span>
+        <span class="pill orange">orange</span>
+        <span class="pill pear">pear</span>
+        <span class="pill strawberry">strawberry</span>
+        <span class="pill tomato">tomato</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -380,9 +458,50 @@ elif page == "Team":
         <div class="main-title">Meet Group 5</div>
         <div style="font-size:1.08rem; color:#475569; max-width:860px;">
             This section presents the team behind the fruit detection platform.
+            Replace the sample names below with your real group members.
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    team_cols = st.columns(3)
+
+    team_members = [
+        {
+            "name": "Member 1",
+            "role": "Project Lead",
+            "desc": "Led project planning, coordination, and presentation preparation."
+        },
+        {
+            "name": "Member 2",
+            "role": "Model Training",
+            "desc": "Worked on data preparation, model training, and evaluation."
+        },
+        {
+            "name": "Member 3",
+            "role": "Web App Development",
+            "desc": "Designed the user interface and connected the trained model to the app."
+        },
+        {
+            "name": "Member 4",
+            "role": "Data Analysis, Testing & Documentation",
+            "desc": "Handled exploratory analysis, interpretation, and reporting. Tested the platform and contributed to documentation and improvements."
+        },
+        {
+            "name": "Lecturer / Tutors",
+            "role": "Guidance",
+            "desc": "Supported the team with direction, review, and feedback."
+        },
+    ]
+
+    for i, member in enumerate(team_members):
+        with team_cols[i % 3]:
+            st.markdown(f"""
+            <div class="team-card">
+                <h3 style="margin-top:0; color:#c026d3;">👤 {member['name']}</h3>
+                <p><b>{member['role']}</b></p>
+                <p style="color:#475569;">{member['desc']}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
 # -----------------------------
 # FOOTER
