@@ -2,6 +2,7 @@ import io
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 from PIL import Image
 
 from utils import (
@@ -125,32 +126,6 @@ st.markdown("""
         min-height: 150px;
     }
 
-    .floating-wrap {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        overflow: hidden;
-    }
-
-    .float-emoji {
-        position: absolute;
-        font-size: 2rem;
-        opacity: 0.75;
-        animation: floaty 7s ease-in-out infinite;
-    }
-
-    .emoji1 { top: 12%; left: 6%; animation-delay: 0s; }
-    .emoji2 { top: 18%; right: 10%; animation-delay: 1s; }
-    .emoji3 { bottom: 14%; left: 18%; animation-delay: 2s; }
-    .emoji4 { bottom: 18%; right: 20%; animation-delay: 3s; }
-    .emoji5 { top: 50%; right: 42%; animation-delay: 4s; }
-
-    @keyframes floaty {
-        0%   { transform: translateY(0px) translateX(0px) rotate(0deg); }
-        50%  { transform: translateY(-14px) translateX(8px) rotate(6deg); }
-        100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-    }
-
     .footer-note {
         text-align: center;
         color: #64748b;
@@ -177,10 +152,6 @@ st.markdown("""
         .pill {
             font-size: 0.85rem;
             padding: 7px 12px;
-        }
-
-        .float-emoji {
-            font-size: 1.6rem;
         }
     }
 </style>
@@ -242,28 +213,85 @@ with st.sidebar:
 # DETECTOR PAGE
 # -----------------------------
 if page == "Detector":
-    st.markdown("""
-<div class="hero-box">
-    <div class="floating-wrap">
-        <div class="float-emoji emoji1">🍎</div>
-        <div class="float-emoji emoji2">🍊</div>
-        <div class="float-emoji emoji3">🍓</div>
-        <div class="float-emoji emoji4">🍐</div>
-        <div class="float-emoji emoji5">🥝</div>
-    </div>
+    components.html("""
+    <div style="
+        position: relative;
+        overflow: hidden;
+        background: rgba(255,255,255,0.78);
+        border: 1px solid rgba(255,255,255,0.9);
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: 0 14px 34px rgba(0,0,0,0.08);
+        margin-bottom: 1rem;
+        min-height: 180px;
+    ">
+        <style>
+            .floating-wrap {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                overflow: hidden;
+            }
 
-    <div style="font-size:1rem; font-weight:700; color:#a21caf;">
-        ✨ Group 5 Fruit Detector
-    </div>
+            .float-emoji {
+                position: absolute;
+                font-size: 2rem;
+                opacity: 0.75;
+                animation: floaty 7s ease-in-out infinite;
+            }
 
-    <div class="main-title">Fun Fruit Vision</div>
+            .emoji1 { top: 12%; left: 6%; animation-delay: 0s; }
+            .emoji2 { top: 18%; right: 10%; animation-delay: 1s; }
+            .emoji3 { bottom: 14%; left: 18%; animation-delay: 2s; }
+            .emoji4 { bottom: 18%; right: 20%; animation-delay: 3s; }
+            .emoji5 { top: 50%; right: 42%; animation-delay: 4s; }
 
-    <div style="font-size:1.08rem; color:#475569; max-width:860px;">
-        Upload an image and let our playful AI detect fruits inside it.
-        The app shows what fruits were found, how sure the model is, and a friendly summary.
+            @keyframes floaty {
+                0%   { transform: translateY(0px) translateX(0px) rotate(0deg); }
+                50%  { transform: translateY(-14px) translateX(8px) rotate(6deg); }
+                100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            }
+
+            .main-title {
+                font-size: 3.2rem;
+                font-weight: 800;
+                line-height: 1.05;
+                margin-bottom: 0.3rem;
+                background: linear-gradient(90deg, #c026d3, #f97316, #65a30d);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            @media (max-width: 768px) {
+                .main-title {
+                    font-size: 2.2rem;
+                }
+                .float-emoji {
+                    font-size: 1.6rem;
+                }
+            }
+        </style>
+
+        <div class="floating-wrap">
+            <div class="float-emoji emoji1">🍎</div>
+            <div class="float-emoji emoji2">🍊</div>
+            <div class="float-emoji emoji3">🍓</div>
+            <div class="float-emoji emoji4">🍐</div>
+            <div class="float-emoji emoji5">🥝</div>
+        </div>
+
+        <div style="font-size:1rem; font-weight:700; color:#a21caf;">
+            ✨ Group 5 Fruit Detector
+        </div>
+
+        <div class="main-title">Fun Fruit Vision</div>
+
+        <div style="font-size:1.08rem; color:#475569; max-width:860px;">
+            Upload an image and let our playful AI detect fruits inside it.
+            The app shows what fruits were found, how sure the model is, and a friendly summary.
+        </div>
     </div>
-</div>
-""", unsafe_allow_html=True)
+    """, height=220)
 
     col_a, col_b = st.columns([2, 1])
 
