@@ -488,7 +488,6 @@ elif page == "Team":
         <div class="main-title">Meet Group 5</div>
         <div style="font-size:1.08rem; color:#475569; max-width:860px;">
             This section presents the team behind the fruit detection platform.
-            Replace the sample names below with your real group members.
         </div>
     </div>
     """, unsafe_allow_html=True)
