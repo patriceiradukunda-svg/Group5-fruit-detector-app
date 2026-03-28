@@ -481,16 +481,11 @@ elif page == "Team":
         },
         {
             "name": "Member 4",
-            "role": "Data Analysis",
-            "desc": "Handled exploratory analysis, interpretation, and reporting."
+            "role": "Data Analysis, Testing & Documentation",
+            "desc": "Handled exploratory analysis, interpretation, and reporting. Tested the platform and contributed to documentation and improvements."
         },
         {
-            "name": "Member 5",
-            "role": "Testing & Documentation",
-            "desc": "Tested the platform and contributed to documentation and improvements."
-        },
-        {
-            "name": "Supervisor / Support",
+            "name": "Lecturer / Tutors",
             "role": "Guidance",
             "desc": "Supported the team with direction, review, and feedback."
         },
