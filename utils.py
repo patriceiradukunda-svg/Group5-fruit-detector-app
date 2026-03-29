@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import cv2
 import numpy as np
@@ -7,6 +7,9 @@ from PIL import Image
 from ultralytics import YOLO
 
 SUPPORTED_CLASSES = ["apple", "kiwi", "orange", "pear", "strawberry", "tomato"]
+
+# Confidence below this triggers a "low confidence / may be wrong" warning
+LOW_CONFIDENCE_WARNING_THRESHOLD = 0.45
 
 CLASS_COLORS = {
     "apple": (239, 68, 68),
@@ -36,7 +39,17 @@ def cv2_to_pil(image: np.ndarray) -> Image.Image:
     return Image.fromarray(rgb)
 
 
-def predict_and_annotate(model: YOLO, image: Image.Image, conf_threshold: float = 0.25):
+def predict_and_annotate(
+    model: YOLO,
+    image: Image.Image,
+    conf_threshold: float = 0.25
+) -> Tuple[Image.Image, List[Dict], bool]:
+    """
+    Returns:
+        annotated_image : PIL image with bounding boxes drawn
+        detections      : list of {label, confidence} dicts
+        low_conf_warning: True if any detection is below LOW_CONFIDENCE_WARNING_THRESHOLD
+    """
     img_cv = pil_to_cv2(image)
 
     results = model.predict(
@@ -48,12 +61,12 @@ def predict_and_annotate(model: YOLO, image: Image.Image, conf_threshold: float 
     result = results[0]
     annotated = img_cv.copy()
     detections: List[Dict] = []
+    low_conf_warning = False
 
     if result.boxes is not None and len(result.boxes) > 0:
         boxes = result.boxes.xyxy.cpu().numpy()
         confs = result.boxes.conf.cpu().numpy()
         clss = result.boxes.cls.cpu().numpy().astype(int)
-
         names = result.names
 
         for box, conf, cls_id in zip(boxes, confs, clss):
@@ -62,6 +75,10 @@ def predict_and_annotate(model: YOLO, image: Image.Image, conf_threshold: float 
 
             if label not in SUPPORTED_CLASSES:
                 continue
+
+            # Flag if confidence is suspiciously low
+            if float(conf) < LOW_CONFIDENCE_WARNING_THRESHOLD:
+                low_conf_warning = True
 
             detections.append({
                 "label": label,
@@ -87,14 +104,16 @@ def predict_and_annotate(model: YOLO, image: Image.Image, conf_threshold: float 
                 cv2.LINE_AA
             )
 
-    return cv2_to_pil(annotated), detections
+    return cv2_to_pil(annotated), detections, low_conf_warning
 
 
 def build_summary_text(detections: List[Dict]) -> str:
     if not detections:
         return (
-            "I could not find any of the supported fruit classes in this image. "
-            "This platform detects only: apple, kiwi, orange, pear, strawberry, and tomato."
+            "No supported fruits were detected in this image. "
+            "This platform only detects: apple, kiwi, orange, pear, strawberry, and tomato. "
+            "If you uploaded a mango, banana, grape, or any other fruit, "
+            "the model cannot recognise it — it may give a wrong label or no label at all."
         )
 
     counts = Counter([d["label"] for d in detections])
@@ -102,10 +121,7 @@ def build_summary_text(detections: List[Dict]) -> str:
 
     parts = []
     for label, count in counts.items():
-        if count == 1:
-            parts.append(f"1 {label}")
-        else:
-            parts.append(f"{count} {label}s")
+        parts.append(f"{count} {label}{'s' if count > 1 else ''}")
 
     if len(parts) == 1:
         joined = parts[0]
@@ -114,7 +130,20 @@ def build_summary_text(detections: List[Dict]) -> str:
 
     avg_conf = sum(d["confidence"] for d in detections) / len(detections)
 
-    return f"We found {total} fruit(s) in this image: {joined}. Average confidence: {avg_conf*100:.1f}%."
+    return (
+        f"We found {total} fruit(s) in this image: {joined}. "
+        f"Average confidence: {avg_conf*100:.1f}%."
+    )
+
+
+def build_low_conf_warning() -> str:
+    return (
+        "⚠️ **Low confidence detected.** One or more detections scored below 45%. "
+        "This often happens when the image contains a fruit the model was **not trained on** "
+        "(e.g. mango, banana, grape, watermelon). "
+        "The model tried its best guess from the 6 supported classes — but the result may be **incorrect**. "
+        "Only apple, kiwi, orange, pear, strawberry, and tomato are reliably supported."
+    )
 
 
 def format_detection_table(detections: List[Dict]):
@@ -131,7 +160,8 @@ def format_detection_table(detections: List[Dict]):
         rows.append({
             "Fruit": label,
             "Confidence (%)": round(avg_conf, 2),
-            "Count": len(confs)
+            "Count": len(confs),
+            "Reliable?": "✅ Yes" if avg_conf >= 45 else "⚠️ Low — may be wrong"
         })
 
     rows.sort(key=lambda x: x["Fruit"])
