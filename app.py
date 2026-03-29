@@ -346,7 +346,7 @@ if page == "Detector":
             "Confidence threshold",
             min_value=0.10,
             max_value=0.90,
-            value=0.25,
+            value=0.20,
             step=0.05
         )
 
