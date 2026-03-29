@@ -9,6 +9,7 @@ from utils import (
     load_model,
     predict_and_annotate,
     build_summary_text,
+    build_low_conf_warning,
     format_detection_table,
 )
 
@@ -376,11 +377,15 @@ if page == "Detector":
         image = Image.open(uploaded_file).convert("RGB")
 
         with st.spinner("Detecting fruits..."):
-            annotated_image, detections = predict_and_annotate(
+            annotated_image, detections, low_conf_warning = predict_and_annotate(
                 model=model,
                 image=image,
                 conf_threshold=conf_threshold
             )
+
+        # Show prominent warning if model is unsure (likely unsupported fruit)
+        if low_conf_warning or not detections:
+            st.warning(build_low_conf_warning())
 
         summary = build_summary_text(detections)
         table_data = format_detection_table(detections)
