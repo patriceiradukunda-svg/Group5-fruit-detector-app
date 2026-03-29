@@ -162,9 +162,15 @@ st.markdown("""
 # MODEL
 # -----------------------------
 MODEL_PATH = "best.pt"
+GDRIVE_FILE_ID = "1MXRGnHVNMJdsTYpTkBN4UaJ3vLmL-ajS"
 
 @st.cache_resource
 def get_model():
+    import os
+    import gdown
+    if not os.path.exists(MODEL_PATH):
+        url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
+        gdown.download(url, MODEL_PATH, quiet=False)
     return load_model(MODEL_PATH)
 
 model = get_model()
@@ -346,7 +352,7 @@ if page == "Detector":
             "Confidence threshold",
             min_value=0.10,
             max_value=0.90,
-            value=0.20,
+            value=0.25,
             step=0.05
         )
 
